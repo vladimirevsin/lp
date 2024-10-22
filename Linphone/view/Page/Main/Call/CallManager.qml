@@ -170,7 +170,7 @@ Item {
 
         // Кнопка вызова/завершения звонка
         Button {
-            icon.source: AppIcons.newCall
+            icon.source: !callManager.callInProgress ? AppIcons.newCall : endCall
             Layout.preferredWidth: 55 * DefaultStyle.dp
             Layout.preferredHeight: 55 * DefaultStyle.dp
             icon.width: 32 * DefaultStyle.dp
@@ -182,6 +182,16 @@ Item {
             onClicked: {
                 callManager.callCurrentContact()
             }
+        }
+        CheckableButton {
+            iconUrl: AppIcons.microphone
+            checkedIconUrl: AppIcons.microphoneSlash
+            checked: callManager.call && callManager.call.core.microphoneMuted
+            Layout.preferredWidth: 55 * DefaultStyle.dp
+            Layout.preferredHeight: 55 * DefaultStyle.dp
+            icon.width: 32 * DefaultStyle.dp
+            icon.height: 32 * DefaultStyle.dp
+            onClicked: callManager.call.core.lSetMicrophoneMuted(!callManager.call.core.microphoneMuted)
         }
     }
 }

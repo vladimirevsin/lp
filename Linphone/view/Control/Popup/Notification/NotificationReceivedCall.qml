@@ -96,7 +96,7 @@ Notification {
 					}
 					onClicked: {
 						console.debug("[NotificationReceivedCall] Accept click")
-                        UtilsCpp.openCallsWindow(mainItem.call)
+                        //UtilsCpp.openCallsWindow(mainItem.call)
 						mainItem.call.core.lAccept(false)
 					}
 				}
