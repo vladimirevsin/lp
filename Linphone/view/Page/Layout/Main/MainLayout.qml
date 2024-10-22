@@ -109,37 +109,7 @@ Item {
 			anchors.fill: parent
 			spacing: 0
 			anchors.topMargin: 25 * DefaultStyle.dp
-			
-			VerticalTabBar {
-				id: tabbar
-				Layout.fillHeight: true
-				Layout.preferredWidth: 82 * DefaultStyle.dp
-				defaultAccount: accountProxy.defaultAccount
-				currentIndex: SettingsCpp.getLastActiveTabIndex()
-				Binding on currentIndex {
-					when: mainItem.contextualMenuOpenedComponent != undefined
-					value: -1
-				}
-				model: [
-					{icon: AppIcons.phone, selectedIcon: AppIcons.phoneSelected, label: qsTr("Appels")},
-					{icon: AppIcons.adressBook, selectedIcon: AppIcons.adressBookSelected, label: qsTr("Contacts")},
-					{icon: AppIcons.chatTeardropText, selectedIcon: AppIcons.chatTeardropTextSelected, label: qsTr("Conversations"), visible: !SettingsCpp.disableChatFeature},
-					{icon: AppIcons.videoconference, selectedIcon: AppIcons.videoconferenceSelected, label: qsTr("Réunions"), visible: !SettingsCpp.disableMeetingsFeature}
-				]
-				onCurrentIndexChanged: {
-					if (currentIndex == -1) return
-					SettingsCpp.setLastActiveTabIndex(currentIndex)
-                    if (currentIndex === 0 && accountProxy.defaultAccount) accountProxy.defaultAccount.core?.lResetMissedCalls()
-					if (mainItem.contextualMenuOpenedComponent) {
-						closeContextualMenuComponent()
-					}
-				}
-				Keys.onPressed: (event)=>{
-					if(event.key == Qt.Key_Right){
-						mainStackView.currentItem.forceActiveFocus()
-					}
-				}
-			}
+
 			ColumnLayout {
                 spacing:0
 
@@ -355,7 +325,7 @@ Item {
 							}
 						}
 					}
-					RowLayout {
+                    RowLayout {
 						spacing: 10 * DefaultStyle.dp
 						PopupButton {
 							id: deactivateDndButton
@@ -582,6 +552,36 @@ Item {
 						}
 					}
 				}
+                RowLayout {
+                    TabBar {
+                        Layout.fillWidth: true
+                        id: tabbar
+                        currentIndex: SettingsCpp.getLastActiveTabIndex()
+                        Binding on currentIndex {
+                            when: mainItem.contextualMenuOpenedComponent != undefined
+                            value: -1
+                            restoreMode: Binding.RestoreBindingOrValue
+                        }
+
+                        model: [qsTr("Журнал"), qsTr("Контакты")]
+
+                        onCurrentIndexChanged: {
+                            if (currentIndex == -1) return
+                            SettingsCpp.setLastActiveTabIndex(currentIndex)
+                            if (currentIndex === 0 && accountProxy.defaultAccount) accountProxy.defaultAccount.core?.lResetMissedCalls()
+                            if (mainItem.contextualMenuOpenedComponent) {
+                                closeContextualMenuComponent()
+                            }
+                        }
+                        Keys.onPressed: (event)=>{
+                            if(event.key == Qt.Key_Right){
+                                mainStackView.currentItem.forceActiveFocus()
+                            }
+                        }
+
+                    }
+
+                }
 				Component {
 					id: mainStackLayoutComponent
 					StackLayout {
