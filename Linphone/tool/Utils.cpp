@@ -115,16 +115,16 @@ void Utils::createCall(const QString &sipAddress,
                        LinphoneEnums::MediaEncryption mediaEncryption,
                        const QString &prepareTransfertAddress,
                        const QHash<QString, QString> &headers) {
-	lDebug() << "[Utils] create call with uri :" << sipAddress << mediaEncryption;
-	App::postModelAsync([sipAddress, options, mediaEncryption, prepareTransfertAddress, headers]() {
-		QString errorMessage;
-		bool success = ToolModel::createCall(sipAddress, options, prepareTransfertAddress, headers,
-		                                     LinphoneEnums::toLinphone(mediaEncryption), &errorMessage);
-		if (!success) {
-			if (errorMessage.isEmpty()) errorMessage = tr("L'appel n'a pas pu être créé");
-			showInformationPopup("Erreur", errorMessage, false);
-		}
-	});
+    lDebug() << "[Utils] create call with uri :" << sipAddress << mediaEncryption;
+    App::postModelAsync([sipAddress, options, mediaEncryption, prepareTransfertAddress, headers]() {
+        QString errorMessage;
+        bool success = ToolModel::createCall(sipAddress, options, prepareTransfertAddress, headers,
+                                             LinphoneEnums::toLinphone(mediaEncryption), &errorMessage);
+        if (!success) {
+            if (errorMessage.isEmpty()) errorMessage = tr("L'appel n'a pas pu être créé");
+            showInformationPopup("Erreur", errorMessage, false);
+        }
+    });
 }
 
 // TODO : change conf info only from qml
@@ -142,7 +142,7 @@ void Utils::setupConference(ConferenceInfoGui *confGui) {
 void Utils::openCallsWindow(CallGui *call) {
 	if (call) {
 		auto window = App::getInstance()->getCallsWindow(QVariant::fromValue(call));
-		window->show();
+		//window->show();
 		window->raise();
 	}
 }
@@ -166,9 +166,9 @@ void Utils::showInformationPopup(const QString &title,
                                  const QString &description,
                                  bool isSuccess,
                                  QQuickWindow *window) {
-	if (!window) window = App::getInstance()->getMainWindow();
-	QMetaObject::invokeMethod(window, "showInformationPopup", Q_ARG(QVariant, title), Q_ARG(QVariant, description),
-	                          Q_ARG(QVariant, isSuccess));
+    if (!window) window = App::getInstance()->getMainWindow();
+    QMetaObject::invokeMethod(window, "showInformationPopup", Q_ARG(QVariant, title), Q_ARG(QVariant, description),
+                              Q_ARG(QVariant, isSuccess));
 }
 
 VariantObject *Utils::haveAccount() {
@@ -214,8 +214,8 @@ QString Utils::createAvatar(const QUrl &fileUrl) {
 			QFileInfo info(file);
 			QString uuid = QUuid::createUuid().toString();
 			fileId = QStringLiteral("%1.%2")
-			             .arg(uuid.mid(1, uuid.length() - 2)) // Remove `{}`.
-			             .arg(info.suffix());
+						 .arg(uuid.mid(1, uuid.length() - 2)) // Remove `{}`.
+						 .arg(info.suffix());
 			fileUri = QStringLiteral("image://%1/%2").arg(AvatarProvider::ProviderId).arg(fileId);
 			QString dest = Paths::getAvatarsDirPath() + fileId;
 			if (!file.copy(dest)) {
@@ -260,11 +260,11 @@ QString Utils::formatElapsedTime(int seconds, bool dotsSeparator) {
 
 QString Utils::formatDate(const QDateTime &date, bool includeTime) {
 	QString dateDay;
-	if (date.date() == QDate::currentDate()) dateDay = tr("Aujourd'hui");
-	else if (date.date() == QDate::currentDate().addDays(-1)) dateDay = tr("Hier");
+	if (date.date() == QDate::currentDate()) dateDay = tr("Сегодня");
+	else if (date.date() == QDate::currentDate().addDays(-1)) dateDay = tr("Вчера");
 	else {
 		QString format = date.date().year() == QDateTime::currentDateTime().date().year() ? "dd MMMM" : "dd MMMM yyyy";
-		dateDay = App::getInstance()->getLocale().toString(date.date(), format);
+		dateDay = tr(date.date().toString(format).toLocal8Bit().data());
 	}
 	if (!includeTime) return dateDay;
 
@@ -405,9 +405,9 @@ QString Utils::generateSavedFilename(const QString &from, const QString &to) {
 		return QString(str).replace(regexp, "");
 	};
 	return QStringLiteral("%1_%2_%3")
-	    .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss"))
-	    .arg(escape(from))
-	    .arg(escape(to));
+		.arg(QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss"))
+		.arg(escape(from))
+		.arg(escape(to));
 }
 
 QStringList Utils::generateSecurityLettersArray(int arraySize, int correctIndex, QString correctCode) {
@@ -463,10 +463,10 @@ void Utils::shareByEmail(const QString &subject,
                          const QString &body,
                          const QString &attachment,
                          const QString &receiver) {
-	// QString attach = attachment;
-	// attach.prepend("file:///");
-	QUrl url(QString("mailto:?to=%1&subject=%2&body=%3").arg(receiver).arg(subject).arg(body));
-	QDesktopServices::openUrl(url);
+    // QString attach = attachment;
+    // attach.prepend("file:///");
+    QUrl url(QString("mailto:?to=%1&subject=%2&body=%3").arg(receiver).arg(subject).arg(body));
+    QDesktopServices::openUrl(url);
 }
 
 QString Utils::getClipboardText() {
@@ -481,7 +481,7 @@ QString Utils::getApplicationProduct() {
 
 QString Utils::getOsProduct() {
 	QString version =
-	    QSysInfo::productVersion().remove(' '); // A version can be "Server 2016" (for Windows Server 2016)
+		QSysInfo::productVersion().remove(' '); // A version can be "Server 2016" (for Windows Server 2016)
 	QString product = QSysInfo::productType().replace(' ', '-'); // Just in case
 	return product + "/" + version;
 }
@@ -490,13 +490,13 @@ QString Utils::computeUserAgent() {
 	// Placeholder
 	return "Linphone 6.0";
 	/*
-	    const std::shared_ptr<linphone::Config> &config
-	    return QStringLiteral("%1 (%2) %3 Qt/%4 LinphoneSDK")
-	        .arg(Utils::getApplicationProduct())
-	        .arg(SettingsModel::getDeviceName(config).replace('\\', "\\\\").replace('(', "\\(").replace(')', "\\)"))
-	        .arg(Utils::getOsProduct())
-	        .arg(qVersion());
-	        */
+		const std::shared_ptr<linphone::Config> &config
+		return QStringLiteral("%1 (%2) %3 Qt/%4 LinphoneSDK")
+			.arg(Utils::getApplicationProduct())
+			.arg(SettingsModel::getDeviceName(config).replace('\\', "\\\\").replace('(', "\\(").replace(')', "\\)"))
+			.arg(Utils::getOsProduct())
+			.arg(qVersion());
+			*/
 }
 QString Utils::getCountryName(const QLocale::Territory &p_country) {
 	QString countryName;
@@ -581,7 +581,7 @@ QString Utils::getCountryName(const QLocale::Territory &p_country) {
 			break;
 		case QLocale::BosniaAndHerzegowina:
 			if ((countryName = QCoreApplication::translate("country", "BosniaAndHerzegowina")) ==
-			    "BosniaAndHerzegowina")
+				"BosniaAndHerzegowina")
 				countryName = "";
 			break;
 		case QLocale::Botswana:
@@ -621,7 +621,7 @@ QString Utils::getCountryName(const QLocale::Territory &p_country) {
 			break;
 		case QLocale::CentralAfricanRepublic:
 			if ((countryName = QCoreApplication::translate("country", "CentralAfricanRepublic")) ==
-			    "CentralAfricanRepublic")
+				"CentralAfricanRepublic")
 				countryName = "";
 			break;
 		case QLocale::Chad:
@@ -641,12 +641,12 @@ QString Utils::getCountryName(const QLocale::Territory &p_country) {
 			break;
 		case QLocale::PeoplesRepublicOfCongo:
 			if ((countryName = QCoreApplication::translate("country", "PeoplesRepublicOfCongo")) ==
-			    "PeoplesRepublicOfCongo")
+				"PeoplesRepublicOfCongo")
 				countryName = "";
 			break;
 		case QLocale::DemocraticRepublicOfCongo:
 			if ((countryName = QCoreApplication::translate("country", "DemocraticRepublicOfCongo")) ==
-			    "DemocraticRepublicOfCongo")
+				"DemocraticRepublicOfCongo")
 				countryName = "";
 			break;
 		case QLocale::CookIslands:
@@ -834,7 +834,7 @@ QString Utils::getCountryName(const QLocale::Territory &p_country) {
 			break;
 		case QLocale::DemocraticRepublicOfKorea:
 			if ((countryName = QCoreApplication::translate("country", "DemocraticRepublicOfKorea")) ==
-			    "DemocraticRepublicOfKorea")
+				"DemocraticRepublicOfKorea")
 				countryName = "";
 			break;
 		case QLocale::RepublicOfKorea:
@@ -984,7 +984,7 @@ QString Utils::getCountryName(const QLocale::Territory &p_country) {
 			break;
 		case QLocale::NorthernMarianaIslands:
 			if ((countryName = QCoreApplication::translate("country", "NorthernMarianaIslands")) ==
-			    "NorthernMarianaIslands")
+				"NorthernMarianaIslands")
 				countryName = "";
 			break;
 		case QLocale::Norway:
@@ -1001,7 +1001,7 @@ QString Utils::getCountryName(const QLocale::Territory &p_country) {
 			break;
 		case QLocale::PalestinianTerritories:
 			if ((countryName = QCoreApplication::translate("country", "PalestinianTerritories")) ==
-			    "PalestinianTerritories")
+				"PalestinianTerritories")
 				countryName = "";
 			break;
 		case QLocale::Panama:
@@ -1059,12 +1059,12 @@ QString Utils::getCountryName(const QLocale::Territory &p_country) {
 			break;
 		case QLocale::SaintPierreAndMiquelon:
 			if ((countryName = QCoreApplication::translate("country", "SaintPierreAndMiquelon")) ==
-			    "SaintPierreAndMiquelon")
+				"SaintPierreAndMiquelon")
 				countryName = "";
 			break;
 		case QLocale::SaintVincentAndTheGrenadines:
 			if ((countryName = QCoreApplication::translate("country", "SaintVincentAndTheGrenadines")) ==
-			    "SaintVincentAndTheGrenadines")
+				"SaintVincentAndTheGrenadines")
 				countryName = "";
 			break;
 		case QLocale::Samoa:
@@ -1176,7 +1176,7 @@ QString Utils::getCountryName(const QLocale::Territory &p_country) {
 			break;
 		case QLocale::TurksAndCaicosIslands:
 			if ((countryName = QCoreApplication::translate("country", "TurksAndCaicosIslands")) ==
-			    "TurksAndCaicosIslands")
+				"TurksAndCaicosIslands")
 				countryName = "";
 			break;
 		case QLocale::TuvaluCountry:
@@ -1217,7 +1217,7 @@ QString Utils::getCountryName(const QLocale::Territory &p_country) {
 			break;
 		case QLocale::WallisAndFutunaIslands:
 			if ((countryName = QCoreApplication::translate("country", "WallisAndFutunaIslands")) ==
-			    "WallisAndFutunaIslands")
+				"WallisAndFutunaIslands")
 				countryName = "";
 			break;
 		case QLocale::Yemen:
@@ -1388,3 +1388,4 @@ QString Utils::boldTextPart(const QString &text, const QString &regex) {
 	if (splittedText.size() > 0) result.append(splittedText[splittedText.size() - 1]);
 	return result;
 }
+

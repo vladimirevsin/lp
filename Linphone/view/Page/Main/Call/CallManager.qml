@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Controls.Basic as Control
 import QtQuick.Effects
 
-import Linphone 1.0
+import Linphone
 import UtilsCpp
 import SettingsCpp
 import LinphoneAccountsCpp
@@ -12,98 +12,80 @@ import LinphoneAccountsCpp
 Item {
     id: callManager
     width: parent.width
-    height: 100  // Или другой желаемый размер
+    height: 100
 
-    // Свойство для текущего выбранного контакта
     property FriendGui currentContact
-    property CallGui call
+    property var call;
     property var callState: call ? call.core.state : LinphoneEnums.CallState.Idle
-    property var transferState: call && call.core.transferState
+    property bool callInProgres: false
+    property var transferState: call ? call.core.transferState : null
     property bool callTerminatedByUser: false
 
-    // Доступ к ядру Linphone
-    //property var core: Linphone.Core.instance
+    function getColorCallButton() {
+        if (callManager.callInProgres) {
+            return "red";
+        }
 
-    // Свойство, указывающее, идет ли звонок
-    //property bool callInProgress: core.calls.length > 0
+        return "green";
 
-    // Обработка изменений в состоянии звонков
-    // Connections {
-    //     target: core
-    //     onCallStateChanged: {
-    //         callInProgress = core.calls.length > 0
-    //     }
-    // }
+        //switch (callState) {
+        //    case 0:
+        //    case 19:
+        //        return "green";
+        //    default:
+        //        return "red";
+        //}
+    }
 
-    //Connections {
-    //    enabled: !!call
-    //    target: call && call.core
+   CallProxy{
+        id: callsModel
+        onCurrentCallChanged: {
+            if(currentCall) {
+                callManager.call = currentCall
 
-    //    onStateChanged: {
-    //        callManager.callState = call.core.state
-    //        callManager.handleCallStateChanged()
-    //        Connections {
-    //            enabled: !!call
-    //            target: call && call.core
-    //
-    //            onStateChanged: {
-    //                callManager.callState = call.core.state
-    //                callManager.handleCallStateChanged()
-    //            }
-    //             onTransferStateChanged: {
-    //                callManager.transferState = call.core.transferState
-    //                callManager.handleTransferStateChanged()
-    //            }
-    //            function onSecurityUpdated() {
-    //                if (call.core.encryption === LinphoneEnums.MediaEncryption.Zrtp) {
-    //                    if (call.core.tokenVerified) {
-    //                        zrtpValidation.close()
-    //                        zrtpValidationToast.open()
-    //                    } else {
-    //                        zrtpValidation.open()
-    //                    }
-    //                } else {
-    //                    zrtpValidation.close()
-    //                }
-    //            }
-    //            function onTokenVerified() {
-    //                if (!zrtpValidation.isTokenVerified) {
-    //                    zrtpValidation.securityError = true
-    //                } else zrtpValidation.close()
-    //            }
-    //
-    //        }
-    //    }
-    //     onTransferStateChanged: {
-    //        callManager.transferState = call.core.transferState
-    //        callManager.handleTransferStateChanged()
-    //    }
-    //    function onSecurityUpdated() {
-    //        if (call.core.encryption === LinphoneEnums.MediaEncryption.Zrtp) {
-    //            if (call.core.tokenVerified) {
-    //                zrtpValidation.close()
-    //                zrtpValidationToast.open()
-    //            } else {
-    //                zrtpValidation.open()
-    //            }
-    //        } else {
-    //            zrtpValidation.close()
-    //        }
-    //    }
-    //    function onTokenVerified() {
-    //        if (!zrtpValidation.isTokenVerified) {
-    //            zrtpValidation.securityError = true
-    //        } else zrtpValidation.close()
-    //    }
+                currentCall.core.stateChanged.connect(function(newState) {
+                    callManager.callInProgres = newState !== LinphoneEnums.CallState.Idle && newState !== LinphoneEnums.CallState.Released
+                    callManager.callState = newState;
+                });
+            }
+        }
+        onHaveCallChanged: {
+            if (!haveCall) {
+                callManager.endCall()
+            }
+        }
+    }
 
-    //}
+    onCallStateChanged: {
+        //UtilsCpp.showInformationPopup("State Changed", currentCall.core.state, false);
+    }
 
-    // Вызываем или завершаем звонок в зависимости от состояния
+    Connections {
+        enabled: !!call
+        target: call && call.core
+        function onSecurityUpdated() {
+            if (call.core.encryption === LinphoneEnums.MediaEncryption.Zrtp) {
+                if (call.core.tokenVerified) {
+                    zrtpValidation.close()
+                    zrtpValidationToast.open()
+                } else {
+                    zrtpValidation.open()
+                }
+            } else {
+                zrtpValidation.close()
+            }
+        }
+        function onTokenVerified() {
+            if (!zrtpValidation.isTokenVerified) {
+                zrtpValidation.securityError = true
+            } else zrtpValidation.close()
+        }
+    }
+
     function callCurrentContact() {
-        if (callManager.callState !== LinphoneEnums.CallState.Idle) {
-            // Завершаем текущий звонок
+        if (callManager.callInProgress) {
             if (call) {
-                call.lTerminate()
+                call.core.lTerminate()
             }
         } else {
             if (currentContact) {
@@ -114,86 +96,89 @@ Item {
         }
     }
 
-    // Удержание или возобновление звонка
-    // function toggleHold() {
-    //     var call = core.currentCall
-    //     if (call) {
-    //         if (call.state === Linphone.CallState.Paused) {
-    //             call.resume()
-    //         } else {
-    //             call.pause()
-    //         }
-    //     }
-    // }
+    RowLayout {
+        Text {
+            text: qsTr("state: %1").arg(callState)
+        }
+    }
 
-    // // Трансфер звонка
-    // function transferCall() {
-    //     var call = core.currentCall
-    //     if (call && currentContact) {
-    //         call.transfer(currentContact.core.defaultAddress)
-    //     } else {
-    //         console.log("Нет активного звонка или выбранного контакта для трансфера")
-    //     }
-    // }
+
+    // Удержание или возобновление звонка
+    function toggleHold() {
+        if (callManager.call) {
+            if (callManager.callState === LinphoneEnums.CallState.Paused) {
+                callManager.call.core.lSetPaused(false)
+            } else {
+                callManager.call.core.lSetPaused(true)
+            }
+        }
+    }
+
+    // Трансфер звонка
+    function transferCallToContact() {
+        if (currentContact)
+            call.core.lTransferCall(currentContact.core.defaultAddress)
+    }
+
+
+    RowLayout {
+        anchors.centerIn: parent
+        spacing: 20
+
+
+
+        // // Кнопка трансфера звонка
+    }
 
     // Кнопки управления
     RowLayout {
         anchors.centerIn: parent
         spacing: 20
-        width: parent.width
 
-        // // Кнопка удержания звонка
-        // Button {
-        //     visible: callManager.callInProgress
-        //     icon.source: core.currentCall && core.currentCall.state === Linphone.CallState.Paused ? AppIcons.play : AppIcons.pause
-        //     Layout.preferredWidth: 55 * DefaultStyle.dp
-        //     Layout.preferredHeight: 55 * DefaultStyle.dp
-        //     icon.width: 32 * DefaultStyle.dp
-        //     icon.height: 32 * DefaultStyle.dp
-        //     background: Rectangle {
-        //         color: "orange"
-        //         radius: 8
-        //     }
-        //     onClicked: {
-        //         callManager.toggleHold()
-        //     }
-        // }
-
-        // // Кнопка трансфера звонка
-        // Button {
-        //     visible: callManager.callInProgress
-        //     icon.source: AppIcons.transfer
-        //     Layout.preferredWidth: 55 * DefaultStyle.dp
-        //     Layout.preferredHeight: 55 * DefaultStyle.dp
-        //     icon.width: 32 * DefaultStyle.dp
-        //     icon.height: 32 * DefaultStyle.dp
-        //     background: Rectangle {
-        //         color: "blue"
-        //         radius: 8
-        //     }
-        //     onClicked: {
-        //         callManager.transferCall()
-        //     }
-        // }
-    }
-
-    RowLayout {
-        anchors.centerIn: parent
-        spacing: 20
-        width: parent.width
-
-        // Кнопка вызова
+        // Кнопка удержания звонка
         Button {
-            icon.source: AppIcons.newCall
+            visible: callManager.callInProgress
+            icon.source: callManager.callState === LinphoneEnums.CallState.Paused ? AppIcons.play : AppIcons.pause
+            Layout.preferredWidth: 55 * DefaultStyle.dp
+            Layout.preferredHeight: 55 * DefaultStyle.dp
             icon.width: 32 * DefaultStyle.dp
             icon.height: 32 * DefaultStyle.dp
-            height: 54 * DefaultStyle.dp
-            width: parent.width
             background: Rectangle {
-                color: callState === LinphoneEnums.CallState.Idle ? "green" : "red"
                 radius: 8
             }
+            onClicked: {
+                callManager.toggleHold()
+            }
+        }
 
+        // Кнопка трансфера звонка
+        Button {
+            visible: callManager.callInProgress
+            icon.source: AppIcons.transferCall
+            Layout.preferredWidth: 55 * DefaultStyle.dp
+            Layout.preferredHeight: 55 * DefaultStyle.dp
+            icon.width: 32 * DefaultStyle.dp
+            icon.height: 32 * DefaultStyle.dp
+            background: Rectangle {
+                color: "blue"
+                radius: 8
+            }
+            onClicked: {
+                callManager.transferCallToContact()
+            }
+        }
+
+        // Кнопка вызова/завершения звонка
+        Button {
+            icon.source: AppIcons.newCall
+            Layout.preferredWidth: 55 * DefaultStyle.dp
+            Layout.preferredHeight: 55 * DefaultStyle.dp
+            icon.width: 32 * DefaultStyle.dp
+            icon.height: 32 * DefaultStyle.dp
+            background: Rectangle {
+                color: getColorCallButton()
+                radius: 8
+            }
             onClicked: {
                 callManager.callCurrentContact()
             }
