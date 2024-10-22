@@ -17,7 +17,7 @@ Item {
 	id: mainItem
 	property var callObj
 	property var contextualMenuOpenedComponent: undefined
-	
+    property var selectedContact
 	signal addAccountRequest()
 	signal openNewCallRequest()
 	signal callCreated()
@@ -26,7 +26,7 @@ Item {
 	signal displayContactRequested(string contactAddress)
 	signal createContactRequested(string name, string address)
 	signal accountRemoved()
-
+    signal contactSelected(var contact)
 
 	function goToNewCall() {
 		tabbar.currentIndex = 0
@@ -141,7 +141,7 @@ Item {
 				}
 			}
 			ColumnLayout {
-				spacing:0
+                spacing:0
 
 				RowLayout {
 					id: topRow
@@ -612,12 +612,18 @@ Item {
 									contactPage.initialFriendToDisplay = contactAddress
 								}
 							}
+                            onContactSelected: {
+                                mainItem.selectedContact = contact
+                                // Передаем сигнал дальше вверх
+                                mainItem.contactSelected(contact)
+                            }
 						}
 						Item{}
 						//ConversationPage{}
 						MeetingPage{}
 					}
-				}
+                }
+
 				Component {
 					id: accountSettingsPageComponent
 					AccountSettingsPage {
@@ -642,15 +648,15 @@ Item {
 					property Transition noTransition: Transition {
 						PropertyAnimation { property: "opacity"; from: 1; to: 1; duration: 0 }
 					}
-					pushEnter: noTransition
-					pushExit: noTransition
-					popEnter: noTransition
-					popExit: noTransition
-					Layout.topMargin: 24 * DefaultStyle.dp
-					Layout.fillWidth: true
-					Layout.fillHeight: true
-					initialItem: mainStackLayoutComponent
-				}
+                    pushEnter: noTransition
+                    pushExit: noTransition
+                    popEnter: noTransition
+                    popExit: noTransition
+                    Layout.topMargin: 24 * DefaultStyle.dp
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    initialItem: mainStackLayoutComponent
+                }
 			}
 		}
 	}

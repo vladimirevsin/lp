@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Window
 import QtQuick.Controls.Basic
-import Linphone
+import Linphone 1.0
 import UtilsCpp 1.0
 import SettingsCpp 1.0
 import LinphoneAccountsCpp
@@ -13,6 +13,7 @@ AbstractWindow {
 	title: qsTr("Linphone")
 	// TODO : handle this bool when security mode is implemented
 	property bool firstConnection: true
+    property var selectedContact
 
 	color: DefaultStyle.grey_0
 
@@ -210,7 +211,21 @@ AbstractWindow {
 				target: mainWindow
 				function onCallCreated(){ mainLayout.callCreated() }
 			}
+            onContactSelected: {
+                mainWindow.selectedContact = contact
+                console.log(mainWindow.selectedContact.core.displayName)
+            }
 			// StackView.onActivated: connectionSecured(0) // TODO : connect to cpp part when ready
 		}
 	}
+
+    CallManager {
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 100  // Высота фиксирована, но ширина теперь зависит от привязок
+
+        currentContact: mainWindow.selectedContact
+    }
+
 }

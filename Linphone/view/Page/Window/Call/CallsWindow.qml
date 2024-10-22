@@ -26,8 +26,8 @@ AbstractWindow {
 	property var callState: call ? call.core.state : LinphoneEnums.CallState.Idle
 	property var transferState: call && call.core.transferState
 
-	onCallStateChanged: {
-		if (callState === LinphoneEnums.CallState.Connected) {
+    onCallStateChanged: {
+        if (callState === LinphoneEnums.CallState.Connected) {
 			if (middleItemStackView.currentItem.objectName != "inCallItem") {
 				middleItemStackView.replace(inCallItem)
 				bottomButtonsLayout.visible = true

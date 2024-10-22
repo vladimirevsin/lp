@@ -113,13 +113,13 @@ list(APPEND _LINPHONEAPP_QML_FILES
 	view/Page/Layout/Settings/CarddavSettingsLayout.qml
 	view/Page/Layout/Settings/SecuritySettingsLayout.qml
 	view/Page/Layout/Settings/NetworkSettingsLayout.qml
-	view/Page/Layout/Settings/AdvancedSettingsLayout.qml
-
+        view/Page/Layout/Settings/AdvancedSettingsLayout.qml
 	view/Page/Main/AbstractMainPage.qml
 	view/Page/Main/Account/AccountListView.qml
 	view/Page/Main/Call/CallPage.qml
 	view/Page/Main/Call/CallSettingsPanel.qml
 	view/Page/Main/Call/WaitingRoom.qml
+        view/Page/Main/Call/CallManager.qml
 	view/Page/Main/Contact/ContactPage.qml
 	view/Page/Main/Help/HelpPage.qml
 	view/Page/Main/Meeting/MeetingPage.qml

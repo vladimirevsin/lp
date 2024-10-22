@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
+#include <QDebug>
 
 #include <QLocale>
 #include <QTranslator>
@@ -54,6 +55,7 @@ int main(int argc, char *argv[]) {
 	setlocale(LC_CTYPE, ".UTF8");
 
 	auto app = QSharedPointer<App>::create(argc, argv);
+
 
 #ifdef ACCESSBILITY_WORKAROUND
 	QAccessible::installUpdateHandler(DummyUpdateHandler);

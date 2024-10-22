@@ -128,12 +128,12 @@ qt6_add_executable(Linphone
 
 set_source_files_properties(${_LINPHONEAPP_QML_SINGLETONS} PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
-
 qt6_add_qml_module(Linphone
     URI Linphone
-    RESOURCE_PREFIX ""
     VERSION 1.0
-    QML_FILES ${_LINPHONEAPP_QML_FILES} ${_LINPHONEAPP_QML_SINGLETONS}
+    QML_FILES
+        ${_LINPHONEAPP_QML_FILES}
+        ${_LINPHONEAPP_QML_SINGLETONS}
     RESOURCES data/fonts.qrc
 )
 

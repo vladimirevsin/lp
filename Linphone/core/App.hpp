@@ -21,6 +21,7 @@
 #include <QCommandLineParser>
 #include <QQmlApplicationEngine>
 #include <QSharedPointer>
+#include <QDebug>
 
 #include "core/account/AccountProxy.hpp"
 #include "core/call/CallProxy.hpp"

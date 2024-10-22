@@ -18,6 +18,9 @@ AbstractMainPage {
 	property FriendGui selectedContact
 	property string initialFriendToDisplay
 
+    // Новый сигнал для передачи выбранного контакта
+    signal contactSelected(var contact)
+
 	onVisibleChanged: if (!visible) {
 		rightPanelStackView.clear()
 		contactList.currentIndex = -1
@@ -26,7 +29,8 @@ AbstractMainPage {
 
 	onSelectedContactChanged: {
 		if (selectedContact) {
-			if (!rightPanelStackView.currentItem || rightPanelStackView.currentItem.objectName != "contactDetail") rightPanelStackView.push(contactDetail)
+            contactSelected(selectedContact)
+            if (!rightPanelStackView.currentItem || rightPanelStackView.currentItem.objectName != "contactDetail") rightPanelStackView.push(contactDetail)
 		} else {
 			if (rightPanelStackView.currentItem && rightPanelStackView.currentItem.objectName === "contactDetail") rightPanelStackView.clear()
 		}

@@ -305,8 +305,8 @@ void App::setSelf(QSharedPointer<App>(me)) {
 		                                         auto callCore = CallCore::create(call);
 		                                         mCoreModelConnection->invokeToCore([this, callCore] {
 			                                         auto callGui = new CallGui(callCore);
-			                                         auto win = getCallsWindow(QVariant::fromValue(callGui));
-			                                         Utils::smartShowWindow(win);
+													 auto win = getCallsWindow(QVariant::fromValue(callGui));
+													 Utils::smartShowWindow(win);
 			                                         auto mainwin = getMainWindow();
 			                                         QMetaObject::invokeMethod(mainwin, "callCreated");
 			                                         lDebug() << "App : call created" << callGui;
@@ -438,8 +438,9 @@ void App::initCore() {
 			    selector->setExtraSelectors(selectors);
 			    lInfo() << log().arg("Activated selectors:") << selector->selector()->allSelectors();
 
-			    mEngine->addImportPath(":/");
-			    mEngine->rootContext()->setContextProperty("applicationDirPath", QGuiApplication::applicationDirPath());
+				mEngine->addImportPath("qrc:/");
+				qDebug() << "Import paths:" << mEngine->importPathList();
+				mEngine->rootContext()->setContextProperty("applicationDirPath", QGuiApplication::applicationDirPath());
 #ifdef APPLICATION_VENDOR
 			    mEngine->rootContext()->setContextProperty("applicationVendor", APPLICATION_VENDOR);
 #else
